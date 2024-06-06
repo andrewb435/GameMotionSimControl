@@ -1,2 +1,2 @@
-psutil==5.9.5
-pyserial==3.5
+psutil
+pyserial
