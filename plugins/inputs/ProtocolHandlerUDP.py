@@ -11,8 +11,8 @@ import time
 
 
 class ProtocolHandlerUDP:
-	def __init__(self, timeout_in: float):
-		self.timeout = timeout_in
+	def __init__(self, timeout: float):
+		self.timeout = timeout
 		self.socket = None
 		self.ip = None
 		self.port = None

@@ -68,7 +68,7 @@ class MotionSystem:
 	Pass in the InputHander motion data to the MotionSystem.
 	Comes in utils.DataFrame format.
 	"""
-	def inputMotion(self, dataFrame):
+	def inputMotion(self, dataFrame: DataFrame):
 		self.poseHandler.motionInput(dataFrame)
 
 	"""

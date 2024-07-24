@@ -13,9 +13,10 @@ from utils.TickTimer import TickTimer
 
 class DriverSerial:
 	def __init__(self, portName):
+		self.updateMs: int = 10
 		self.port = portName
 		self.baud = 500000
-		self.timer = TickTimer(10)
+		self.timer = TickTimer(self.updateMs)	# 10ms = 100Hz updates
 		self.connection = None
 		self.initSerial()
 		self.ready = True
