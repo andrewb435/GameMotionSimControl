@@ -37,7 +37,6 @@ class DriverSerial:
 	def sendCommand(self, command):
 		if self.ready is True:
 			self.ready = False
-			print("Serial tick: @ " + str(time.time()) + ": " + str(command))
 			if self.connection:
 				if self.connection.in_waiting > 0:
 					serial_out = self.connection.read_until()

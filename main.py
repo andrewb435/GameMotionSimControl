@@ -14,15 +14,20 @@ from plugins.outputs.communication.DriverSerial import DriverSerial
 def main():
 	comHandler = DriverSerial("/dev/ttyACM0")
 	inputSystem = InputHandler()
+	inputSystem.telemetryDebug = False	# Debug flag to print plugin telemetry data via util.CLIReporter
 	inputSystem.setupPlugin()
 	motionSystem = MotionSystem(2, "SMC3")
 	while True is True:
 		if inputSystem.gameStatus() is True:
 			inputSystem.update()
-			if comHandler.isReady():
-				motionSystem.inputMotion(inputSystem.getDataFrame())
-				messagebytes = motionSystem.outputCommand()
-				comHandler.sendCommand(messagebytes)
+			if inputSystem.gameRx() is True:
+				if comHandler.isReady():
+					motionSystem.inputMotion(inputSystem.getDataFrame())
+					messagebytes = motionSystem.outputCommand()
+					comHandler.sendCommand(messagebytes)
+				else:
+					# TODO: Idle home position of motion system
+					pass
 		else:
 			inputSystem.gameSearch()
 

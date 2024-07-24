@@ -9,6 +9,7 @@
 import time
 import math
 from plugins.games.DirtRally2 import GamePlugin
+from utils.CLIReporter import Reporter
 from utils.TickTimer import DeltaTimer
 from utils.RemapValue import remapValue
 from utils.DataFrame import DataFrame
@@ -21,10 +22,12 @@ a normalized, unified DataFrame containing a final frame pose, with all axes ran
 
 class InputHandler:
 	def __init__(self):
+		self.telemetryDebug = False
 		self.gamePlugin = GamePlugin()
 		self.inputPose = DataFrame()
 		self.outputPose = DataFrame()
 		self.ticker = DeltaTimer()
+		self.reporter = Reporter(self.gamePlugin)
 
 		# Minimums for given game
 		self.gameMinimums = None
@@ -38,11 +41,16 @@ class InputHandler:
 		self.gamePlugin.setupSocket()
 
 	def gameStatus(self):
-		return self.gamePlugin.getStatus()
+		return self.gamePlugin.getRunningStatus()
+
+	def gameRx(self):
+		return self.gamePlugin.getRxStatus()
 
 	def update(self):
 		self.gamePlugin.update()
 		self.inputPose = self.gamePlugin.getDataFrame(self.ticker.getDelta())
+		if self.telemetryDebug:
+			self.reporter.printReport()
 		self.convertRadiansToDegrees()
 		# Clamp to gamePlugin minmax
 		self.clampScales()

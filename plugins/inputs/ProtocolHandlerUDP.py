@@ -11,7 +11,8 @@ import time
 
 
 class ProtocolHandlerUDP:
-	def __init__(self):
+	def __init__(self, timeout_in: float):
+		self.timeout = timeout_in
 		self.socket = None
 		self.ip = None
 		self.port = None
@@ -38,8 +39,8 @@ class ProtocolHandlerUDP:
 				self.data, addr = self.socket.recvfrom(1024)  # 1024 byte buffer
 				self.lastPacket = time.time()
 			except TimeoutError as _:
-				if (time.time() - self.lastPacket >= 5.0) and (self.data is not None):
-					print('20 seconds since last packet, clearing data buffer')
+				if (time.time() - self.lastPacket >= self.timeout) and (self.data is not None):
+					print(str(self.timeout) + ' seconds since last packet, clearing data buffer and marking inactive')
 					self.data = None
 				else:
 					pass
