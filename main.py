@@ -12,7 +12,9 @@ from plugins.outputs.communication.DriverSerial import DriverSerial
 
 
 def main():
-	comHandler = DriverSerial("/dev/ttyACM0")
+	# Get serial port list
+	comHandler = DriverSerial()
+	comHandler.selectSerial()
 	inputSystem = InputHandler()
 	inputSystem.setupPlugin()
 	motionSystem = MotionSystem(2, "SMC3")
@@ -22,6 +24,7 @@ def main():
 	inputSystem.telemetryDebug = False	# print plugin telemetry data
 	inputSystem.axisOutputDebug = False	# print plugin axis output data
 	# Debug Stuff
+
 
 	while True is True:
 		if inputSystem.gameStatus() is True:

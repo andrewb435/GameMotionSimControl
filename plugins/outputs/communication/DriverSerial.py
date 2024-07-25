@@ -9,17 +9,23 @@
 import serial
 import time
 from utils.TickTimer import TickTimer
+from plugins.outputs.communication.DriverSerialComfinder import SerialFinder
 
 
 class DriverSerial:
-	def __init__(self, portName):
+	def __init__(self):
 		self.updateMs: int = 10
-		self.port = portName
+		self.port = None
 		self.baud = 500000
 		self.timer = TickTimer(self.updateMs)	# 10ms = 100Hz updates
 		self.connection = None
-		self.initSerial()
 		self.ready = True
+		self.finder = SerialFinder()
+
+	def selectSerial(self):
+		self.port = self.finder.listPorts()
+		if self.port is not None:
+			self.initSerial()
 
 	def initSerial(self):
 		try:
@@ -53,6 +59,6 @@ class DriverSerial:
 						self.connection = None
 						print(err)
 			else:
-				print('Retying port ' + str(self.port) + ' at ' + str(self.baud) + ' baud')
+				print('Retrying port ' + str(self.port) + ' at ' + str(self.baud) + ' baud')
 				time.sleep(.25)
 				self.initSerial()
