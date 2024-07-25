@@ -17,12 +17,11 @@ def main():
 	inputSystem.setupPlugin()
 	motionSystem = MotionSystem(2, "SMC3")
 	motionSystem.inputMotion(inputSystem.getDataFrame())
-	#
+
 	# Debug Stuff
-	inputSystem.telemetryDebug = False	# Debug flag to print plugin telemetry data
-	inputSystem.axisOutputDebug = False	# Debug flag to print plugin axis output data
-	#
-	#
+	inputSystem.telemetryDebug = False	# print plugin telemetry data
+	inputSystem.axisOutputDebug = False	# print plugin axis output data
+	# Debug Stuff
 
 	while True is True:
 		if inputSystem.gameStatus() is True:

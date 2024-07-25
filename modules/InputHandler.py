@@ -129,12 +129,12 @@ class InputHandler:
 
 	def configureIdlePose(self):
 		# TODO: This needs to be set or read from config
-		self.idlePose.pitch = 0.5
-		self.idlePose.yaw = 0.5
-		self.idlePose.roll = 0.5
-		self.idlePose.surge = 0.5
-		self.idlePose.sway = 0.5
-		self.idlePose.heave = 0.5
+		self.idlePose.pitch = 0.0
+		self.idlePose.yaw = 0.0
+		self.idlePose.roll = 0.0
+		self.idlePose.surge = 0.0
+		self.idlePose.sway = 0.0
+		self.idlePose.heave = 0.0
 
 	def gameSearch(self):
 		self.gamePlugin.checkForGame()

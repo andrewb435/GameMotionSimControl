@@ -8,7 +8,9 @@
 
 import time
 
-
+"""
+TickTimer gives a tick interval timer for periodic actions on a fixed interval
+"""
 class TickTimer:
 	# Interval in milliseconds
 	def __init__(self, interval: int):
@@ -31,12 +33,19 @@ class TickTimer:
 		return self.delta
 
 
+"""
+DeltaTimer is used to keep track of a frame delta time
+"""
 class DeltaTimer:
 	def __init__(self):
 		self.tick: int = time.perf_counter_ns()
 		self.tock: int = 0
 		self.delta: float = 0.0
 
+	"""
+	getDelta returns a float of seconds since the last getDelta call
+	Use once per loop per instance to get a frame delta time for impulse calculations
+	"""
 	def getDelta(self) -> float:
 		self.tock = time.perf_counter_ns()
 		self.delta = (self.tock - self.tick) / 1000000000
