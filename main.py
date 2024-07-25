@@ -11,7 +11,6 @@ from modules.InputHandler import InputHandler
 from modules.MotionSystem import MotionSystem
 from plugins.outputs.communication.DriverSerial import DriverSerial
 
-
 def main():
 	# Get serial port list
 	comHandler = DriverSerial()
