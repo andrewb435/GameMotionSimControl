@@ -270,7 +270,7 @@ class GamePlugin:
 		self.VectorY = self.data.pitchZ * self.data.rollX - self.data.pitchX * self.data.rollZ
 		self.VectorZ = self.data.pitchX * self.data.rollY - self.data.pitchY * self.data.rollX
 
-	def checkForGame(self):
+	def checkForGame(self) -> bool:
 		processName = 'dirtrally2.exe'
 		for proc in psutil.process_iter():
 			try:
@@ -279,6 +279,7 @@ class GamePlugin:
 			except Exception as err:
 				self.statusRunning = False
 				print('Other err:' + str(err))
+		return self.statusRunning
 
 	def loadGameMinimums(self) -> DataFrame:
 		out = DataFrame()

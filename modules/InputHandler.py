@@ -137,8 +137,8 @@ class InputHandler:
 		self.poseIdleTarget.sway = 0.0
 		self.poseIdleTarget.heave = 0.0
 
-	def gameSearch(self):
-		self.gamePlugin.checkForGame()
+	def gameSearch(self) -> bool:
+		return self.gamePlugin.checkForGame()
 
 	def gameMinimumsLoad(self):
 		self.gameMinimums = self.gamePlugin.gameMinimums

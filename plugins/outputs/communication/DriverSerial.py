@@ -30,6 +30,7 @@ class DriverSerial:
 	def initSerial(self):
 		try:
 			self.connection = serial.Serial(self.port, self.baud, timeout=1)
+			print("Serial connected at " + str(self.port))
 		except serial.SerialException as err:
 			self.connection = None
 			print(err)

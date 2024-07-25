@@ -5,15 +5,18 @@ arduinoVID = [0x2341, 0x2A03]
 arduinoUnoPID = [0x0001, 0x0043, 0x0243]
 
 class Style:
-	PURPLE = '\033[95m'
-	CYAN = '\033[96m'
-	DARKCYAN = '\033[36m'
-	BLUE = '\033[94m'
-	GREEN = '\033[92m'
-	YELLOW = '\033[93m'
-	RED = '\033[91m'
+	# Font effects
 	BOLD = '\033[1m'
+	ITALIC = '\033[3m'
 	UNDERLINE = '\033[4m'
+	# Font Colors
+	RED = '\033[31m'
+	GREEN = '\033[32m'
+	YELLOW = '\033[33m'
+	BLUE = '\033[34m'
+	MAGENTA = '\033[35m'
+	CYAN = '\033[36m'
+	# END
 	END = '\033[0m'
 
 class SerialFinder:
@@ -34,7 +37,7 @@ class SerialFinder:
 		input_message = "Choose motion controller port:\n"
 		for index, port in enumerate(self.portList):
 			if port.vid in arduinoVID and port.pid in arduinoUnoPID:
-				input_message += f'{Style.BOLD}{Style.YELLOW}{index + 1}) {"Port " + str(port.device) + ", (Arduino Uno) Desc: " + str(port.description) + ", HWID: " + str(port.hwid) + "\n"}{Style.END}'
+				input_message += f'{Style.BOLD}{Style.YELLOW}{index + 1}) {"Port " + str(port.device) + " (Arduino Uno),Desc: " + str(port.description) + ", HWID: " + str(port.hwid) + "\n"}{Style.END}'
 			else:
 				input_message += f'{index + 1}) {"Port " + str(port.device) + ", Desc: " + str(port.description) + ", HWID: " + str(port.hwid) + "\n"}'
 		input_message += "Selection: "
