@@ -25,10 +25,10 @@ class InputHandler:
 		self.axisOutputDebug: bool = False
 		self.gamePlugin: GamePlugin = GamePlugin()
 		self.poseRaw: DataFrame = DataFrame()
-		self.timeToIdle: float = 4.0	# Time to move from game position to idle position
 		self.loopDelta: float = 0
 		self.isIdle: bool = True
-		self.idleTimePosition: float = 0
+		self.timeToIdle: float = 2.0	# Time to move from game position to idle position
+		self.timeIdlePosition: float = 0
 		self.poseIdleTarget: DataFrame = DataFrame()
 		self.poseIdleStart: DataFrame = DataFrame()
 		self.poseIdleCurrent: DataFrame = DataFrame()
@@ -70,7 +70,7 @@ class InputHandler:
 			self.poseIdleStart = self.poseNormalized
 			if self.isIdle:
 				self.isIdle = False
-				self.idleTimePosition = 0
+				self.timeIdlePosition = 0
 		else:
 			self.decayToIdlePose()
 		if self.axisOutputDebug:
@@ -115,15 +115,13 @@ class InputHandler:
 	def decayToIdlePose(self):
 		if self.isIdle is False:
 			self.isIdle = True
-		self.idleTimePosition += self.loopDelta
-		if self.idleTimePosition >= self.timeToIdle:
-			self.idleTimePosition = self.timeToIdle
-		idleRatio = self.idleTimePosition / self.timeToIdle
+		self.timeIdlePosition += self.loopDelta
+		if self.timeIdlePosition >= self.timeToIdle:
+			self.timeIdlePosition = self.timeToIdle
+		idleRatio = self.timeIdlePosition / self.timeToIdle
 		out = DataFrame()
-		out.roll = self.poseIdleStart.roll + (self.poseIdleTarget.roll - self.poseIdleStart.roll) * idleRatio
-		if 0 < idleRatio < 1.0:
-			print(str(out.roll))
 		out.pitch = self.poseIdleStart.pitch + (self.poseIdleTarget.pitch - self.poseIdleStart.pitch) * idleRatio
+		out.roll = self.poseIdleStart.roll + (self.poseIdleTarget.roll - self.poseIdleStart.roll) * idleRatio
 		out.yaw = self.poseIdleStart.yaw + (self.poseIdleTarget.yaw - self.poseIdleStart.yaw) * idleRatio
 		out.surge = self.poseIdleStart.surge + (self.poseIdleTarget.surge - self.poseIdleStart.surge) * idleRatio
 		out.sway = self.poseIdleStart.sway + (self.poseIdleTarget.sway - self.poseIdleStart.sway) * idleRatio
