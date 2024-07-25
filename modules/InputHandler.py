@@ -24,15 +24,15 @@ class InputHandler:
 		self.telemetryDebug: bool = False
 		self.axisOutputDebug: bool = False
 		self.gamePlugin: GamePlugin = GamePlugin()
-		self.inputPose: DataFrame = DataFrame()
+		self.poseRaw: DataFrame = DataFrame()
 		self.timeToIdle: float = 4.0	# Time to move from game position to idle position
 		self.loopDelta: float = 0
 		self.isIdle: bool = True
 		self.idleTimePosition: float = 0
-		self.idlePose: DataFrame = DataFrame()
-		self.idleStartPose: DataFrame = DataFrame()
-		self.idleCurrentPose: DataFrame = DataFrame()
-		self.outputPose: DataFrame = DataFrame()
+		self.poseIdleTarget: DataFrame = DataFrame()
+		self.poseIdleStart: DataFrame = DataFrame()
+		self.poseIdleCurrent: DataFrame = DataFrame()
+		self.poseNormalized: DataFrame = DataFrame()
 		self.ticker: DeltaTimer = DeltaTimer()
 		self.reporter: Reporter = Reporter(self.gamePlugin)
 		self.configureIdlePose()
@@ -58,46 +58,48 @@ class InputHandler:
 		self.loopDelta = self.ticker.getDelta()
 		self.gamePlugin.update()
 		if self.gamePlugin.getRxStatus():
-			self.inputPose = self.gamePlugin.getDataFrame(self.loopDelta)
+			self.poseRaw = self.gamePlugin.getDataFrame(self.loopDelta)
 		if self.telemetryDebug:
 			self.reporter.printTelemetryReport()
 		self.convertRadiansToDegrees()
 		# Clamp to gamePlugin minmax
-		self.clampScales()
+		poseClamped = self.clampScales(self.poseRaw)
 		# Normalize the outputs against the game minmax values
-		self.normalizeScales()
+		self.poseNormalized = self.normalizeScales(poseClamped)
 		if self.gamePlugin.getRxStatus():
-			self.idleStartPose = self.outputPose
-			self.isIdle = False
+			self.poseIdleStart = self.poseNormalized
+			if self.isIdle:
+				self.isIdle = False
+				self.idleTimePosition = 0
 		else:
 			self.decayToIdlePose()
 		if self.axisOutputDebug:
-			self.reporter.printAxisOutputReport(self.outputPose)
+			self.reporter.printAxisOutputReport(self.poseNormalized)
 
 	def convertRadiansToDegrees(self):
-		self.inputPose.pitch = self.inputPose.pitch * (180 / math.pi)
-		self.inputPose.roll = self.inputPose.roll * (180 / math.pi)
-		self.inputPose.yaw = self.inputPose.yaw * (180 / math.pi)
+		self.poseRaw.pitch = self.poseRaw.pitch * (180 / math.pi)
+		self.poseRaw.roll = self.poseRaw.roll * (180 / math.pi)
+		self.poseRaw.yaw = self.poseRaw.yaw * (180 / math.pi)
 
-	def clampScales(self):
+	def clampScales(self, pose_in: DataFrame) -> DataFrame:
 		out = DataFrame()
-		out.pitch = self.clampValue(self.inputPose.pitch, self.gameMinimums.pitch, self.gameMaximums.pitch)
-		out.roll = self.clampValue(self.inputPose.roll, self.gameMinimums.roll, self.gameMaximums.roll)
-		out.yaw = self.clampValue(self.inputPose.yaw, self.gameMinimums.yaw, self.gameMaximums.yaw)
-		out.surge = self.clampValue(self.inputPose.surge, self.gameMinimums.surge, self.gameMaximums.surge)
-		out.sway = self.clampValue(self.inputPose.sway, self.gameMinimums.sway, self.gameMaximums.sway)
-		out.heave = self.clampValue(self.inputPose.heave, self.gameMinimums.heave, self.gameMaximums.heave)
-		self.outputPose = out
+		out.pitch = self.clampValue(pose_in.pitch, self.gameMinimums.pitch, self.gameMaximums.pitch)
+		out.roll = self.clampValue(pose_in.roll, self.gameMinimums.roll, self.gameMaximums.roll)
+		out.yaw = self.clampValue(pose_in.yaw, self.gameMinimums.yaw, self.gameMaximums.yaw)
+		out.surge = self.clampValue(pose_in.surge, self.gameMinimums.surge, self.gameMaximums.surge)
+		out.sway = self.clampValue(pose_in.sway, self.gameMinimums.sway, self.gameMaximums.sway)
+		out.heave = self.clampValue(pose_in.heave, self.gameMinimums.heave, self.gameMaximums.heave)
+		return out
 
-	def normalizeScales(self):
+	def normalizeScales(self, pose_in: DataFrame) -> DataFrame:
 		out = DataFrame()
-		out.pitch = remapValue(self.outputPose.pitch, self.gameMinimums.pitch, self.gameMaximums.pitch, -1.0, 1.0)
-		out.roll = remapValue(self.outputPose.roll, self.gameMinimums.roll, self.gameMaximums.roll, -1.0, 1.0)
-		out.yaw = remapValue(self.outputPose.yaw, self.gameMinimums.yaw, self.gameMaximums.yaw, -1.0, 1.0)
-		out.surge = remapValue(self.outputPose.surge, self.gameMinimums.surge, self.gameMaximums.surge, -1.0, 1.0)
-		out.sway = remapValue(self.outputPose.sway, self.gameMinimums.sway, self.gameMaximums.sway, -1.0, 1.0)
-		out.heave = remapValue(self.outputPose.heave, self.gameMinimums.heave, self.gameMaximums.heave, -1.0, 1.0)
-		self.outputPose = out
+		out.pitch = remapValue(pose_in.pitch, self.gameMinimums.pitch, self.gameMaximums.pitch, -1.0, 1.0)
+		out.roll = remapValue(pose_in.roll, self.gameMinimums.roll, self.gameMaximums.roll, -1.0, 1.0)
+		out.yaw = remapValue(pose_in.yaw, self.gameMinimums.yaw, self.gameMaximums.yaw, -1.0, 1.0)
+		out.surge = remapValue(pose_in.surge, self.gameMinimums.surge, self.gameMaximums.surge, -1.0, 1.0)
+		out.sway = remapValue(pose_in.sway, self.gameMinimums.sway, self.gameMaximums.sway, -1.0, 1.0)
+		out.heave = remapValue(pose_in.heave, self.gameMinimums.heave, self.gameMaximums.heave, -1.0, 1.0)
+		return out
 
 	def clampValue(self, value, minimum, maximum) -> float:
 		out = value
@@ -108,33 +110,34 @@ class InputHandler:
 		return out
 
 	def getDataFrame(self):
-		return self.outputPose
+		return self.poseNormalized
 
 	def decayToIdlePose(self):
 		if self.isIdle is False:
-			self.idleTimePosition = 0
 			self.isIdle = True
 		self.idleTimePosition += self.loopDelta
 		if self.idleTimePosition >= self.timeToIdle:
 			self.idleTimePosition = self.timeToIdle
 		idleRatio = self.idleTimePosition / self.timeToIdle
 		out = DataFrame()
-		out.roll = self.idleStartPose.roll + (self.idlePose.roll - self.idleStartPose.roll) * idleRatio
-		out.pitch = self.idleStartPose.pitch + (self.idlePose.pitch - self.idleStartPose.pitch) * idleRatio
-		out.yaw = self.idleStartPose.yaw + (self.idlePose.yaw - self.idleStartPose.yaw) * idleRatio
-		out.surge = self.idleStartPose.surge + (self.idlePose.surge - self.idleStartPose.surge) * idleRatio
-		out.sway = self.idleStartPose.sway + (self.idlePose.sway - self.idleStartPose.sway) * idleRatio
-		out.heave = self.idleStartPose.heave + (self.idlePose.heave - self.idleStartPose.heave) * idleRatio
-		self.outputPose = out
+		out.roll = self.poseIdleStart.roll + (self.poseIdleTarget.roll - self.poseIdleStart.roll) * idleRatio
+		if 0 < idleRatio < 1.0:
+			print(str(out.roll))
+		out.pitch = self.poseIdleStart.pitch + (self.poseIdleTarget.pitch - self.poseIdleStart.pitch) * idleRatio
+		out.yaw = self.poseIdleStart.yaw + (self.poseIdleTarget.yaw - self.poseIdleStart.yaw) * idleRatio
+		out.surge = self.poseIdleStart.surge + (self.poseIdleTarget.surge - self.poseIdleStart.surge) * idleRatio
+		out.sway = self.poseIdleStart.sway + (self.poseIdleTarget.sway - self.poseIdleStart.sway) * idleRatio
+		out.heave = self.poseIdleStart.heave + (self.poseIdleTarget.heave - self.poseIdleStart.heave) * idleRatio
+		self.poseNormalized = out
 
 	def configureIdlePose(self):
 		# TODO: This needs to be set or read from config
-		self.idlePose.pitch = 0.0
-		self.idlePose.yaw = 0.0
-		self.idlePose.roll = 0.0
-		self.idlePose.surge = 0.0
-		self.idlePose.sway = 0.0
-		self.idlePose.heave = 0.0
+		self.poseIdleTarget.pitch = 0.0
+		self.poseIdleTarget.yaw = 0.0
+		self.poseIdleTarget.roll = 0.0
+		self.poseIdleTarget.surge = 0.0
+		self.poseIdleTarget.sway = 0.0
+		self.poseIdleTarget.heave = 0.0
 
 	def gameSearch(self):
 		self.gamePlugin.checkForGame()
