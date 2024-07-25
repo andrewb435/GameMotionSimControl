@@ -52,7 +52,8 @@ class MotionSystem:
 		self.axisHandlers[0].inverts.pitch = True
 		self.axisHandlers[1].inverts.pitch = True
 
-		self.axisHandlers[0].inverts.roll = True
+		self.axisHandlers[0].inverts.roll = False
+		self.axisHandlers[1].inverts.roll = True
 
 		self.axisHandlers[0].inverts.surge = True
 		self.axisHandlers[1].inverts.surge = True
