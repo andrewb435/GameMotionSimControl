@@ -31,7 +31,7 @@ class DriverSMC3:
 		self.axisMixEnable.sway = True
 		self.axisMixEnable.heave = True
 
-	def getOutputCommand(self, commandFrames: [float], axisCount: int) -> str:
+	def getOutputCommand(self, commandFrames: [float], axisCount: int):
 		denormalizedCommandFrame: [float] = [0.0] * axisCount
 		for i in range(axisCount):
 			denormalizedCommandFrame[i] = remapValue(commandFrames[i], -1.0, 1.0, self.driverMin, self.driverMax)
